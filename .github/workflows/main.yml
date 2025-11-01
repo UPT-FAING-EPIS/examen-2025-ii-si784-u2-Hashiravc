@@ -10,27 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Clonar el repositorio
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Paso 2: Configurar .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
 
-      # Paso 3: Restaurar dependencias
       - name: Restore dependencies
         run: dotnet restore
 
-      # Paso 4: Compilar y ejecutar tests con cobertura
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
       - name: Build and run tests with coverage
         run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
           dotnet test MusicLib.Tests/MusicLib.Tests.csproj --collect:"XPlat Code Coverage"
           reportgenerator -reports:"./**/coverage.cobertura.xml" -targetdir:"./coverage-report" -reporttypes:Html
 
-      # Paso 5: Publicar reporte en GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
